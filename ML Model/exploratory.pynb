@@ -1,0 +1,180 @@
+import lightkurve as lk
+
+# Search for Kepler data
+search_result = lk.search_lightcurve('Kepler-10', mission='Kepler')
+light_curves = search_result.download_all()
+
+# STEP 1: Install kagglehub if not already installed
+!pip install kagglehub
+
+# STEP 2: Import kagglehub and download dataset
+import kagglehub
+
+# Download latest version of the dataset
+path = kagglehub.dataset_download("keplersmachines/kepler-labelled-time-series-data")
+print("Path to dataset files:", path)  # Should print the local directory path
+
+# STEP 3: List extracted files and load them
+import os
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+# List files to verify download
+print("Downloaded files:", os.listdir(path))
+
+# Correct file paths for reading, assuming standard structure
+df = pd.read_csv(os.path.join(path, 'exoTrain.csv'))
+test_df = pd.read_csv(os.path.join(path, 'exoTest.csv'))
+
+print(f"Training data shape: {df.shape}")
+print(f"Test data shape: {test_df.shape}")
+
+print("Class distribution:")
+print(df['LABEL'].value_counts())
+# 2 = Exoplanet present, 1 = No exoplanet
+
+def plot_light_curves(df, n_samples=4):
+    fig, axes = plt.subplots(2, 2, figsize=(15, 10))
+    axes = axes.flatten()
+    for i in range(n_samples):
+        flux_data = df.iloc[i, 1:].values
+        axes[i].plot(flux_data)
+        axes[i].set_title(f'Light Curve {i+1} - Label: {df.iloc[i, 0]}')
+        axes[i].set_xlabel('Time')
+        axes[i].set_ylabel('Flux')
+    plt.tight_layout()
+    plt.show()
+
+plot_light_curves(df)
+
+# Separate features and labels
+X_train = df.drop('LABEL', axis=1).values
+y_train = df['LABEL'].values
+
+X_test = test_df.drop('LABEL', axis=1).values
+y_test = test_df['LABEL'].values
+
+# Convert labels: 2->1 (exoplanet), 1->0 (no exoplanet)
+y_train = (y_train == 2).astype(int)
+y_test = (y_test == 2).astype(int)
+
+# Basic normalization
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+print(f"Exoplanets in training set: {y_train.sum()}/{len(y_train)}")
+print(f"Exoplanets in test set: {y_test.sum()}/{len(y_test)}")
+
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Create and train model
+rf_model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=42,
+    class_weight='balanced'  # Handle imbalanced data
+)
+
+rf_model.fit(X_train_scaled, y_train)
+
+# Make predictions
+y_pred = rf_model.predict(X_test_scaled)
+
+# Evaluate model
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred))
+print("\nConfusion Matrix:")
+print(confusion_matrix(y_test, y_pred))
+
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.optimizers import Adam
+import numpy as np # Import numpy for unique and compute_class_weight
+
+# Build neural network
+def create_neural_network(input_dim):
+    model = Sequential([
+        Dense(128, activation='relu', input_dim=input_dim), # Corrected: Pass the number of features
+        Dropout(0.3),
+        Dense(64, activation='relu'),
+        Dropout(0.3),
+        Dense(32, activation='relu'),
+        Dropout(0.2),
+        Dense(1, activation='sigmoid')  # Binary classification
+    ])
+
+    model.compile(
+        optimizer=Adam(learning_rate=0.001),
+        loss='binary_crossentropy',
+        metrics=['accuracy']
+    )
+
+    return model
+
+# Get the number of features
+input_features = X_train_scaled.shape[1]
+
+# Create and train model
+nn_model = create_neural_network(input_features)
+
+
+# Handle class imbalance
+from sklearn.utils.class_weight import compute_class_weight
+class_weights = compute_class_weight(
+    'balanced',
+    classes=np.unique(y_train),
+    y=y_train
+)
+class_weight_dict = {i: class_weights[i] for i in range(len(class_weights))}
+
+# Train model
+history = nn_model.fit(
+    X_train_scaled, y_train,
+    validation_split=0.2,
+    epochs=20,
+    batch_size=32,
+    class_weight=class_weight_dict,
+    verbose=1
+)
+
+# Evaluate model
+nn_loss, nn_accuracy = nn_model.evaluate(X_test_scaled, y_test)
+print(f"Neural Network Accuracy: {nn_accuracy:.4f}")
+
+# -- Download and load data as before, using kagglehub --
+import kagglehub
+import os
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import StandardScaler
+import joblib
+
+path = kagglehub.dataset_download("keplersmachines/kepler-labelled-time-series-data")
+df = pd.read_csv(os.path.join(path, 'exoTrain.csv'))
+test_df = pd.read_csv(os.path.join(path, 'exoTest.csv'))
+
+# Preprocessing
+X_train = df.drop('LABEL', axis=1).values
+y_train = (df['LABEL'].values == 2).astype(int)
+X_test = test_df.drop('LABEL', axis=1).values
+y_test = (test_df['LABEL'].values == 2).astype(int)
+
+# Normalize
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+# Train model
+rf_model = RandomForestClassifier(n_estimators=100, class_weight='balanced', random_state=42)
+rf_model.fit(X_train_scaled, y_train)
+
+# Save model and scaler
+joblib.dump(rf_model, 'exoplanet_model.pkl')
+joblib.dump(scaler, 'scaler.pkl')
+print("Model and scaler saved successfully.")
