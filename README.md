@@ -12,14 +12,10 @@ Radial Velocity (Doppler Wobble): A planet's gravitational pull causes its host 
 Direct Imaging: This method involves taking a direct picture of the exoplanet. It is extremely difficult due to the overwhelming brightness of the host star. Special instruments are used to block the starlight, making it possible to see the much fainter planet.
 
 
-Gravitational Microlensing: When a star passes in front of a more distant star, its gravity can bend and magnify the light of the background star. If the foreground star has a planet, the planet's gravity can cause an additional, brief spike in the magnification.<img width="1228" height="794" alt="Screenshot 2025-09-28 at 12 29 32 PM" src="https://github.com/user-attachments/assets/c0181e2d-7014-44b5-a967-df352c0c5d33" />
-
-
+Gravitational Microlensing: When a star passes in front of a more distant star, its gravity can bend and magnify the light of the background star. If the foreground star has a planet, the planet's gravity can cause an additional, brief spike in the magnification.
 
 
 <img width="1304" height="427" alt="Screenshot 2025-09-28 at 12 16 02 PM" src="https://github.com/user-attachments/assets/b4d0149a-d9fd-4b68-8a55-86fcb4f61e05" />
-
-
 
 
 
