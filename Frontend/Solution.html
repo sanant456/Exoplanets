@@ -1,0 +1,68 @@
+import { Navigation } from './components/Navigation';
+import { Hero } from './components/Hero';
+import { FeaturedPlanets } from './components/FeaturedPlanets';
+import { DiscoveryMethods } from './components/DiscoveryMethods';
+import { InteractiveTimeline } from './components/InteractiveTimeline';
+import { Footer } from './components/Footer';
+
+export default function App() {
+  return (
+    <div className="min-h-screen bg-black">
+      <Navigation />
+      <main>
+        <Hero />
+        <section id="discoveries">
+          <FeaturedPlanets />
+        </section>
+        <DiscoveryMethods />
+        <InteractiveTimeline />
+        <section id="about" className="py-20 px-6 bg-gradient-to-b from-black to-gray-900">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl mb-8 bg-gradient-to-r from-blue-400 to-green-400 bg-clip-text text-transparent">
+              About Exoplanet Discovery
+            </h2>
+            <div className="text-lg text-gray-300 leading-relaxed space-y-6">
+              <p>
+                The search for exoplanets represents one of humanity's most profound scientific endeavors. 
+                Since the first confirmed detection in 1995, we've discovered thousands of worlds that 
+                challenge our understanding of planetary formation and the conditions necessary for life.
+              </p>
+              <p>
+                Each discovery brings us closer to answering the fundamental question: Are we alone in the universe? 
+                From super-Earths to hot Jupiters, from planets in extreme orbits to those in the habitable zones 
+                of their stars, the diversity of exoplanets continues to astonish scientists and inspire new 
+                generations of astronomers.
+              </p>
+              <p>
+                With next-generation telescopes like the James Webb Space Telescope and upcoming missions, 
+                we're entering a golden age of exoplanet science where we can not only detect these distant 
+                worlds but also analyze their atmospheres and search for signs of life.
+              </p>
+            </div>
+
+            <div className="mt-8 inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-blue-400 text-sm">Live data is taken from NASA</span>
+            </div>
+            
+            <div className="mt-12 grid md:grid-cols-3 gap-8">
+              <div className="p-6 bg-gray-800/30 rounded-xl border border-gray-700">
+                <h3 className="text-xl text-blue-400 mb-3">Current Missions</h3>
+                <p className="text-gray-400">TESS, James Webb, and ground-based surveys continue to discover new worlds</p>
+              </div>
+              <div className="p-6 bg-gray-800/30 rounded-xl border border-gray-700">
+                <h3 className="text-xl text-green-400 mb-3">Future Goals</h3>
+                <p className="text-gray-400">Direct imaging of Earth-like planets and biosignature detection</p>
+              </div>
+              <div className="p-6 bg-gray-800/30 rounded-xl border border-gray-700">
+                <h3 className="text-xl text-purple-400 mb-3">Technology</h3>
+                <p className="text-gray-400">Advanced coronagraphs and interferometry for unprecedented observations</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
+    </div>
+  );
+}
